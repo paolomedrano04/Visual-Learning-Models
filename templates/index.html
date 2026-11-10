@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AXON: cómo aprende una red neuronal</title>
+<link rel="preload" href="{{ url_for('static', filename='fonts/Saira.woff') }}" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/axon.css') }}">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%236fe3ff' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='16' r='3.5' fill='%23ffb454'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <a class="brand" href="/" aria-label="AXON, inicio">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="13" class="mk-ring"/>
+        <circle cx="16" cy="16" r="3.4" class="mk-core"/>
+        <path d="M16 3v4M16 25v4M3 16h4M25 16h4" class="mk-tick"/>
+      </svg>
+      <span class="wordmark">AXON</span>
+      <span class="tagline">Cómo aprende una red neuronal</span>
+    </a>
+
+    <div class="seg" id="datasets" role="group" aria-label="Dataset">
+      {% for key in datasets %}<button data-key="{{ key }}" aria-pressed="false">{{ names[key] }}</button>{% endfor %}
+    </div>
+
+    <nav class="steps" id="questions" aria-label="Preguntas">
+      <button data-q="epochs" aria-pressed="true"><span class="n">1</span>Épocas</button>
+      <button data-q="layers" aria-pressed="false"><span class="n">2</span>Capas</button>
+      <button data-q="confusion" aria-pressed="false"><span class="n">3</span>Confusiones</button>
+      <button data-q="hard" aria-pressed="false"><span class="n">4</span>Difíciles</button>
+    </nav>
+
+    <div class="top-actions">
+      <button id="open-matrix" class="link">Vista general</button>
+      <button id="open-tour" class="cta">Recorrido guiado</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <div class="viewport" id="viewport">
+      <canvas id="holo" aria-hidden="true"></canvas>
+      <svg id="overlay" role="img" aria-label="Proyección t-SNE de las activaciones de la red"></svg>
+
+      <div class="hud hud-title">
+        <p class="kicker" id="stage-kicker"></p>
+        <h1 id="stage-title">Iniciando</h1>
+        <p class="caption" id="finding" aria-live="polite"></p>
+      </div>
+
+      <div class="hud hud-readouts" id="gauges" aria-label="Lectura de la etapa"></div>
+
+      <div class="hud hud-legend" id="legend" aria-label="Clases"></div>
+
+      <div class="hud hud-controls">
+        <p class="hint" id="color-hint"></p>
+        <div class="ctl-row">
+        <span class="zoom"><span id="zoom-read">1,0×</span><button id="reset-zoom" class="link">Encuadrar</button></span>
+        <div class="seg seg-sm" id="color-mode" role="group" aria-label="Color de los puntos">
+          <button data-mode="class" aria-pressed="true">Clase</button>
+          <button data-mode="correct" aria-pressed="false">Acierto</button>
+          <button data-mode="keep" aria-pressed="false">Fidelidad 2D</button>
+        </div>
+        </div>
+        <div class="chips" role="group" aria-label="Capas de lectura">
+          <button class="chip" id="t-bundles" aria-pressed="false">Haces</button>
+          <button class="chip" id="t-errors" aria-pressed="false">Solo errores</button>
+          <button class="chip" id="t-links" aria-pressed="true">Vecinos</button>
+          <button class="chip" id="t-photos" aria-pressed="true">Fotos al acercar</button>
+        </div>
+        <label class="strength" id="bundle-row" hidden>
+          <span>Agrupación</span>
+          <input type="range" id="bundle-strength" min="0" max="1" step="0.05" value="0.5">
+        </label>
+      </div>
+
+
+      <div id="tip" class="tip" hidden></div>
+      <div class="empty" id="empty" hidden></div>
+    </div>
+
+    <div class="timeline">
+      <button id="play" class="play" aria-label="Reproducir">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path id="play-icon" d="M6 4 L16 10 L6 16 Z"/></svg>
+      </button>
+      <div class="tl-axis">
+        <div class="seg seg-sm" id="axis" role="group" aria-label="Recorrer">
+          <button data-axis="epochs" aria-pressed="true">Épocas</button>
+          <button data-axis="layers" aria-pressed="false">Capas</button>
+        </div>
+        <label class="fixed"><span id="fixed-label">capa</span><select id="fixed"></select></label>
+      </div>
+      <svg id="track" class="track" role="slider" tabindex="0" aria-label="Etapa"></svg>
+      <div id="preview" class="preview" hidden><canvas width="200" height="132"></canvas><span></span></div>
+    </div>
+  </main>
+
+  <aside class="inspector">
+    <section class="question">
+      <p class="q-code" id="q-code"></p>
+      <h2 id="q-title"></h2>
+      <div id="q-body" class="q-body"></div>
+      <ul id="q-insights" class="insights"></ul>
+    </section>
+
+    <section class="detail" id="detail">
+      <div class="d-head">
+        <h3>Imagen</h3>
+        <span id="d-state"></span>
+      </div>
+      <div class="d-body" id="d-body">
+        <div class="d-main">
+          <canvas id="d-img" width="28" height="28"></canvas>
+          <div class="d-info" id="d-info"></div>
+        </div>
+        <div id="d-probs" class="d-probs"></div>
+        <div id="d-history" class="d-history"></div>
+        <div id="d-neighbors" class="d-neighbors"></div>
+      </div>
+    </section>
+
+    <footer class="credits">DS5343 Visualización de Datos, UTEC 2026-2. {{ authors | join(", ") }}</footer>
+  </aside>
+</div>
+
+<div class="modal" id="matrix" hidden role="dialog" aria-modal="true" aria-labelledby="matrix-title">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <h2 id="matrix-title">Vista general</h2>
+        <p id="matrix-sub"></p>
+      </div>
+      <button class="link" id="close-matrix">Cerrar</button>
+    </div>
+    <div id="matrix-grid" class="matrix-grid"></div>
+  </div>
+</div>
+
+<div class="tour" id="tour" hidden role="dialog" aria-labelledby="tour-title">
+  <div class="tour-progress" id="tour-progress"></div>
+  <h3 id="tour-title"></h3>
+  <p id="tour-text"></p>
+  <div class="tour-actions">
+    <button class="link" id="tour-close">Salir</button>
+    <span></span>
+    <button class="link" id="tour-prev">Anterior</button>
+    <button class="cta" id="tour-next">Siguiente</button>
+  </div>
+</div>
+
+<div class="boot" id="boot">
+  <svg viewBox="0 0 200 200" class="boot-ring" aria-hidden="true">
+    <circle cx="100" cy="100" r="78" class="br1"/><circle cx="100" cy="100" r="58" class="br2"/>
+    <circle cx="100" cy="100" r="6" class="br-core"/>
+  </svg>
+  <p class="boot-word">AXON</p>
+  <ol id="boot-log"></ol>
+</div>
+
+<script src="{{ url_for('static', filename='js/d3.v7.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/axon.js') }}"></script>
+</body>
+</html>
