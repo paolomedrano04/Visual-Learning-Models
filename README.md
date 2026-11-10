@@ -125,17 +125,3 @@ El entrenamiento original de CIFAR-10 está en `pipeline/original/generate.py` y
 - En CIFAR-10 la matriz época × capa tiene forma de cruz. El entrenamiento original guardó el bloque 3 en cada época y todas las capas solo en la época seleccionada. Completarla requiere reentrenar guardando todas las capas por época.
 - t-SNE conserva vecindarios locales, no distancias globales. Por eso la app reporta la fidelidad 2D junto a cada proyección.
 
-## Guion de exposición (unos 10 minutos)
-
-1. **Apertura (1 min).** Pregunta inicial: ¿qué pasa dentro de una red mientras aprende? Mostrar CIFAR-10 en la época 0: una nube sin forma.
-2. **P1 (2 min).** Reproducir las épocas. Señalar el salto de la época 0 a la 1 en la curva. Abrir la vista general para mostrar la estructura completa.
-3. **P2 (2,5 min).** Cambiar a MNIST, pestaña Capas, y activar los haces. Reproducir de la entrada a la salida y comparar con la figura del paper. Señalar las marcas rojas: sin entrenar, cada capa pierde información. Pasar el cursor por el mapa de neuronas.
-4. **P3 (2 min).** Volver a CIFAR-10. Clic en la arista entre Gato y Perro de la red de clases y acercar hasta ver las fotos reales. Mostrar una foto puente.
-5. **P4 (1,5 min).** Abrir la imagen más difícil y seguir su trayectoria y su historial de decisiones.
-6. **Cierre (1 min).** Mostrar Fashion-MNIST (Camiseta y Camisa) para cerrar la idea: la red falla donde las clases se parecen de verdad.
-
-## Créditos
-
-Pipeline original de entrenamiento de CIFAR-10 y primera versión de la visualización: [nombre de la compañera]. Ampliación, MNIST, Fashion-MNIST e interfaz AXON: Paolo Medrano Terán, Gianella Lira
-
-Interfaz holográfica original; no usa marcas ni personajes de terceros. Fuentes Saira e IBM Plex Mono bajo licencia SIL Open Font License (incluida en `static/fonts/`).
