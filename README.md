@@ -136,6 +136,6 @@ El entrenamiento original de CIFAR-10 está en `pipeline/original/generate.py` y
 
 ## Créditos
 
-Pipeline original de entrenamiento de CIFAR-10 y primera versión de la visualización: [nombre de la compañera]. Ampliación, MNIST, Fashion-MNIST e interfaz AXON: Paolo Medrano Terán.
+Pipeline original de entrenamiento de CIFAR-10 y primera versión de la visualización: [nombre de la compañera]. Ampliación, MNIST, Fashion-MNIST e interfaz AXON: Paolo Medrano Terán, Gianella Lira
 
 Interfaz holográfica original; no usa marcas ni personajes de terceros. Fuentes Saira e IBM Plex Mono bajo licencia SIL Open Font License (incluida en `static/fonts/`).
